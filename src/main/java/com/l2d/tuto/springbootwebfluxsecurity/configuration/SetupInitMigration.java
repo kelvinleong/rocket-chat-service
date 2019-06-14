@@ -7,6 +7,8 @@ import com.l2d.tuto.springbootwebfluxsecurity.user.domain.Authority;
 import com.l2d.tuto.springbootwebfluxsecurity.user.domain.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import java.time.ZonedDateTime;
+
 /**
  * @author duc-d
  */
@@ -31,13 +33,21 @@ public class SetupInitMigration {
         userAuthority.setName(AuthoritiesConstants.USER);
 
         User adminUser = new User();
-        adminUser.setLogin("admin");
+        //adminUser.setLogin("admin");
+        adminUser.setUsername("admin");
+        adminUser.setEmail("admin@example.com");
+        adminUser.setCreatedAt(ZonedDateTime.now());
+        adminUser.setDisplayName("admin");
         adminUser.setPassword("$2a$10$MYkP3aeSQy7DI.qgk4noreZ5uchb0i61OOeWu2tVHAO1yNSsGqCVG"); // password: password
         adminUser.getAuthorities().add(adminAuthority);
         adminUser.getAuthorities().add(userAuthority);
 
         User aprilonUser = new User();
-        aprilonUser.setLogin("user");
+        //aprilonUser.setLogin("user");
+        aprilonUser.setUsername("user");
+        aprilonUser.setEmail("user@example.com");
+        aprilonUser.setCreatedAt(ZonedDateTime.now());
+        aprilonUser.setDisplayName("user");
         aprilonUser.setPassword("$2a$10$MYkP3aeSQy7DI.qgk4noreZ5uchb0i61OOeWu2tVHAO1yNSsGqCVG"); // password: password
         aprilonUser.getAuthorities().add(userAuthority);
 

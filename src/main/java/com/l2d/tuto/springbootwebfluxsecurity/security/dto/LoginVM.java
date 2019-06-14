@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 public class LoginVM {
 	@NotEmpty
 	@Size(min = 1, max = 50)
-	private String username;
+	private String user;
 
 	@NotEmpty
 	private String password;

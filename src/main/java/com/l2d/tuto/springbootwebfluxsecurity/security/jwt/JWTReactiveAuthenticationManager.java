@@ -1,8 +1,7 @@
 package com.l2d.tuto.springbootwebfluxsecurity.security.jwt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.BadCredentialsException;
+import com.l2d.tuto.springbootwebfluxsecurity.security.exception.UnauthorizedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,8 +15,8 @@ import reactor.core.scheduler.Schedulers;
 /**
  * @author duc-d
  */
+@Slf4j
 public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ReactiveUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -34,28 +33,31 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
             return Mono.just(authentication);
         }
         return Mono.just(authentication)
-                .switchIfEmpty(Mono.defer(this::raiseBadCredentials))
+                .switchIfEmpty(Mono.defer(this::raiseUnauthenticatedException))
                 .cast(UsernamePasswordAuthenticationToken.class)
                 .flatMap(this::authenticateToken)
                 .publishOn(Schedulers.parallel())
-                .onErrorResume(e -> raiseBadCredentials())
+                .onErrorResume(e -> {
+                    log.error("something goes wrong", e);
+                    return raiseUnauthenticatedException();
+                })
                 .filter(u -> passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
-                .switchIfEmpty(Mono.defer(this::raiseBadCredentials))
+                .switchIfEmpty(Mono.defer(this::raiseUnauthenticatedException))
                 .map(u -> new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), authentication.getCredentials(), u.getAuthorities()));
     }
 
-    private <T> Mono<T> raiseBadCredentials() {
-        return Mono.error(new BadCredentialsException("Invalid Credentials"));
+    private <T> Mono<T> raiseUnauthenticatedException() {
+        return Mono.error(new UnauthorizedException("Invalid Credentials"));
     }
 
     private Mono<UserDetails> authenticateToken(final UsernamePasswordAuthenticationToken authenticationToken) {
         String username = authenticationToken.getName();
 
-        logger.info("checking authentication for user " + username);
+        log.info("checking authentication for user " + username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            logger.info("authenticated user " + username + ", setting security context");
-            return this.userDetailsService.findByUsername(username);
+            log.info("authenticated user [" + username + "], setting security context");
+            return userDetailsService.findByUsername(username);
         }
 
         return null;

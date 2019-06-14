@@ -34,7 +34,8 @@ public class SecurityConfiguration {
     private static final String[] AUTH_WHITELIST = {
             "/resources/**",
             "/webjars/**",
-            "/authorize/**",
+            "/auth/signin",
+            "/auth/signup",
             "/favicon.ico",
     };
 
@@ -47,7 +48,8 @@ public class SecurityConfiguration {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, UnauthorizedAuthenticationEntryPoint entryPoint) {
 
-        http.httpBasic().disable()
+        http
+                .httpBasic().disable()
                 .formLogin().disable()
                 .csrf().disable()
                 .logout().disable();
@@ -78,7 +80,7 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationWebFilter webFilter() {
-        AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(repositoryReactiveAuthenticationManager());
+        var authenticationWebFilter = new AuthenticationWebFilter(repositoryReactiveAuthenticationManager());
         authenticationWebFilter.setAuthenticationConverter(new TokenAuthenticationConverter(tokenProvider));
         authenticationWebFilter.setRequiresAuthenticationMatcher(new JWTHeadersExchangeMatcher());
         authenticationWebFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
@@ -87,8 +89,7 @@ public class SecurityConfiguration {
 
     @Bean
     public JWTReactiveAuthenticationManager repositoryReactiveAuthenticationManager() {
-        JWTReactiveAuthenticationManager repositoryReactiveAuthenticationManager = new JWTReactiveAuthenticationManager(reactiveUserDetailsService, passwordEncoder());
-        return repositoryReactiveAuthenticationManager;
+        return new JWTReactiveAuthenticationManager(reactiveUserDetailsService, passwordEncoder());
     }
 
     @Bean

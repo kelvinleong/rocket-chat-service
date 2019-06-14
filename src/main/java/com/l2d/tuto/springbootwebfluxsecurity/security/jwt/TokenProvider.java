@@ -1,6 +1,7 @@
 package com.l2d.tuto.springbootwebfluxsecurity.security.jwt;
 
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,10 +26,8 @@ import java.util.stream.Collectors;
  *
  */
 @Component
+@Slf4j
 public class TokenProvider {
-
-    private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
-
     private static final String SALT_KEY = "JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF";
     private static final int TOKEN_VALIDITY = 86400; // Value in second
 
@@ -44,8 +43,7 @@ public class TokenProvider {
     public void init() {
         this.secretKey = encoder.encodeToString(SALT_KEY.getBytes(StandardCharsets.UTF_8));
 
-        this.tokenValidityInMilliseconds =
-                1000 * TOKEN_VALIDITY;
+        this.tokenValidityInMilliseconds = 1000 * TOKEN_VALIDITY;
     }
 
     public String createToken(Authentication authentication) {

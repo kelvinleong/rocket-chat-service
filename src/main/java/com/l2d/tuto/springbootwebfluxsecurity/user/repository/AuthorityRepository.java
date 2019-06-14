@@ -3,6 +3,7 @@ package com.l2d.tuto.springbootwebfluxsecurity.user.repository;
 import com.l2d.tuto.springbootwebfluxsecurity.user.domain.Authority;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 /**
  * @author duc-d
@@ -10,4 +11,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AuthorityRepository extends ReactiveMongoRepository<Authority, String> {
+    Mono<Authority> findByName(String name);
 }

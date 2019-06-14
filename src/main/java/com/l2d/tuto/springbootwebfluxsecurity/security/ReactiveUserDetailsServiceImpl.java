@@ -29,10 +29,10 @@ public class ReactiveUserDetailsServiceImpl implements ReactiveUserDetailsServic
     }
 
     @Override
-    public Mono<UserDetails> findByUsername(String login) {
-        return userRepository.findByLogin(login)
+    public Mono<UserDetails> findByUsername(String username) {
+        return userRepository.findByUsername(username)
                 .filter(Objects::nonNull)
-                .switchIfEmpty(Mono.error(new BadCredentialsException(String.format("User %s not found in database", login))))
+                .switchIfEmpty(Mono.error(new BadCredentialsException(String.format("User %s not found in database", username))))
                 .map(this::createSpringSecurityUser);
     }
 
@@ -40,7 +40,7 @@ public class ReactiveUserDetailsServiceImpl implements ReactiveUserDetailsServic
         List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getName()))
                 .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(user.getLogin(),
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
                 user.getPassword(),
                 grantedAuthorities);
     }

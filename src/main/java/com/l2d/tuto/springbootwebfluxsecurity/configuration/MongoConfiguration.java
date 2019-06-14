@@ -55,6 +55,15 @@ public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
         return new MongoCustomConversions(converterList);
     }
 
+    @Bean
+    public ReactiveMongoTemplate reactiveMongoTemplate(MongoClient mongoClient) {
+        var template =  new ReactiveMongoTemplate(mongoClient, "test");
+        MappingMongoConverter mongoMapping = (MappingMongoConverter) template.getConverter();
+        mongoMapping.setCustomConversions(customConversions());
+        mongoMapping.afterPropertiesSet();
+        return template;
+    }
+
 //    @Bean
 //    public Mongobee mongobee(MongoProperties mongoProperties) throws Exception {
 //        log.debug("Configuring Mongobee");
