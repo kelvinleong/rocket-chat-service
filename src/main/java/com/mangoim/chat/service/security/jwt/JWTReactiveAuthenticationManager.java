@@ -12,9 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-/**
- * @author duc-d
- */
 @Slf4j
 public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 

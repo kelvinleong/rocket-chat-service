@@ -21,10 +21,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-/**
- * @author duc-d
- *
- */
 @Component
 @Slf4j
 public class TokenProvider {

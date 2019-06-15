@@ -21,9 +21,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 
-/**
- * @author duc-d
- */
 @Configuration
 @EnableReactiveMethodSecurity
 @EnableWebFluxSecurity

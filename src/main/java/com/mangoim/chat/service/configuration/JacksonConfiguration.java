@@ -17,9 +17,7 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * created by duc-d on 8/5/2018
- */
+
 public class JacksonConfiguration {
 
     @Bean

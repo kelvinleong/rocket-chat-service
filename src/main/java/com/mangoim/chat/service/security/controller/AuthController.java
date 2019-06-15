@@ -14,11 +14,6 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 
-/**
- *
- * @author duc-d
- *
- */
 @RestController
 @RequestMapping("/auth")
 @Slf4j

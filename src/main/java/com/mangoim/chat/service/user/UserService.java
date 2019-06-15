@@ -4,7 +4,6 @@ import com.mangoim.chat.service.security.dto.CreateUserVM;
 import com.mangoim.chat.service.security.dto.LoginVM;
 import com.mangoim.chat.service.security.dto.UserDetailsVM;
 import com.mangoim.chat.service.user.domain.User;
-import com.l2d.tuto.springbootwebfluxsecurity.user.model.*;
 import com.mangoim.chat.service.user.model.CreateRocketUserModel;
 import com.mangoim.chat.service.user.model.RocketLoginResponse;
 import com.mangoim.chat.service.user.model.RocketUserResponse;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
 
 @Service
 public class UserService {

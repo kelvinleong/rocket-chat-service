@@ -20,9 +20,6 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author duc-d
- */
 @Configuration
 @Slf4j
 public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
@@ -60,18 +57,6 @@ public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
         mongoMapping.afterPropertiesSet();
         return template;
     }
-
-//    @Bean
-//    public Mongobee mongobee(MongoProperties mongoProperties) throws Exception {
-//        log.debug("Configuring Mongobee");
-//        Mongobee mongobee = new Mongobee(mongo());
-//        mongobee.setDbName(mongoProperties.getMongoClientDatabase());
-//        mongobee.setMongoTemplate(mongoTemplate());
-//        // package to scan for migrations
-//        mongobee.setChangeLogsScanPackage("com.l2d.tuto.springbootwebfluxsecurity.configuration");
-//        mongobee.setEnabled(true);
-//        return mongobee;
-//    }
 
     @Override
     public MongoClient reactiveMongoClient() {

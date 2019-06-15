@@ -63,13 +63,19 @@ public class AuthService {
                 .doOnSuccess(ReactiveSecurityContextHolder::withAuthentication)
                 .flatMap(authentication -> Mono.just(tokenProvider.createToken(authentication)))
                 .flatMap(token -> userService.login(loginVM, token)
-                        .doOnError(ex -> log.error("Failed to login to rocket, {}", loginVM.getUser(), ex)));
+                            .doOnError(throwable -> {
+                                log.error("Failed to login to rocket, {}", loginVM.getUser(), throwable);
+                                throw new UnauthorizedException("Bad credential on rocket");
+                            })
+                );
     }
 
     public Mono<UserModel> signup(@Valid @RequestBody CreateUserVM createUserVM) {
         return  authorityRepository
                    .findByName(AuthoritiesConstants.USER)
-                   .doOnError(ex -> log.error("failed to get user role"))
+                   .doOnError(throwable -> {
+                       throw new UnsupportedOperationException("Role is not found");
+                   })
                    .flatMap(role -> userRepository
                                 .save(User.builder()
                                        .username(createUserVM.getUsername())
@@ -79,11 +85,17 @@ public class AuthService {
                                        .createdAt(ZonedDateTime.now())
                                        .authorities(Set.of(role))
                                        .build())
-                                .doOnError(ex -> log.error("Failed to persist user, {}", createUserVM.getUsername(), ex))
+                                .doOnError(throwable -> {
+                                    log.error("Failed to persist user, {}", createUserVM.getUsername(), throwable);
+                                    throw new InternalError("Something went wrong on db");
+                                })
                    )
                    .flatMap(user -> userService
                           .createRocketChatUser(createUserVM, user)
-                          .doOnError(ex -> log.error("Failed to create rocket user, {}", createUserVM.getUsername(), ex))
+                          .doOnError(throwable -> {
+                              log.error("Failed to create rocket user, {}", createUserVM.getUsername(), throwable);
+                              throw new InternalError("Something went wrong on db");
+                          })
                    );
     }
 }

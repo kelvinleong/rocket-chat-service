@@ -10,9 +10,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * @author duc-d
- */
 public class TokenAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
 	private static final String BEARER = "Bearer ";
 	private static final Predicate<String> matchBearerLength = authValue -> authValue.length() > BEARER.length();
