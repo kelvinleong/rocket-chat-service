@@ -27,7 +27,7 @@ public class User implements Serializable {
     @Id
     private String id;
 
-    @Indexed(unique = true, sparse = true)
+    @Indexed(unique = true)
     private String username;
 
     private String displayName;
