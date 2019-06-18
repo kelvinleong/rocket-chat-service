@@ -51,7 +51,7 @@ public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
 
     @Bean
     public ReactiveMongoTemplate reactiveMongoTemplate(MongoClient mongoClient) {
-        var template =  new ReactiveMongoTemplate(mongoClient, "test");
+        var template =  new ReactiveMongoTemplate(mongoClient, mongoDatabase);
         MappingMongoConverter mongoMapping = (MappingMongoConverter) template.getConverter();
         mongoMapping.setCustomConversions(customConversions());
         mongoMapping.afterPropertiesSet();
@@ -60,7 +60,8 @@ public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
 
     @Override
     public MongoClient reactiveMongoClient() {
-        return MongoClients.create();
+        String url = "mongodb://" + mongoHost + ":" + mongoPort;
+        return MongoClients.create(url);
     }
 
 

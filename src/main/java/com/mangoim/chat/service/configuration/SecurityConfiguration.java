@@ -30,9 +30,12 @@ public class SecurityConfiguration {
 
     private static final String[] AUTH_WHITELIST = {
             "/resources/**",
-            "/webjars/**",
-            "/auth/signin",
-            "/auth/signup",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/**/api-docs",
+            "/**/springfox-swagger-ui/**",
+            "/**/auth/signin",
+            "/**/auth/signup",
             "/favicon.ico",
     };
 
