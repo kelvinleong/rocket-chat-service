@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.l2d.tuto</groupId>
+    <groupId>com.mangoim.chat.service</groupId>
     <artifactId>spring-boot-webflux</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -21,7 +21,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>1.11</java.version>
         <jsonwebtoken.version>0.9.1</jsonwebtoken.version>
         <lombok.version>1.18.0</lombok.version>
     </properties>

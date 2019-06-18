@@ -1,5 +1,6 @@
 package com.mangoim.chat.service.configuration;
 
+import com.mangoim.chat.service.ApiVersion;
 import com.mangoim.chat.service.security.AuthoritiesConstants;
 import com.mangoim.chat.service.security.ReactiveUserDetailsServiceImpl;
 import com.mangoim.chat.service.security.TokenAuthenticationConverter;
@@ -34,9 +35,9 @@ public class SecurityConfiguration {
             "/swagger-resources/**",
             "/**/api-docs",
             "/**/springfox-swagger-ui/**",
-            "/**/auth/signin",
-            "/**/auth/signup",
             "/favicon.ico",
+            ApiVersion.V1 + "/auth/signin",
+            ApiVersion.V1 + "/auth/signup"
     };
 
     public SecurityConfiguration(ReactiveUserDetailsServiceImpl reactiveUserDetailsService,

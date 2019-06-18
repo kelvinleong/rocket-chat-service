@@ -8,15 +8,55 @@ import com.mangoim.chat.service.user.model.CreateRocketUserModel;
 import com.mangoim.chat.service.user.model.RocketLoginResponse;
 import com.mangoim.chat.service.user.model.RocketUserResponse;
 import com.mangoim.chat.service.user.model.UserModel;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Service
+@Slf4j
 public class UserService {
-    private WebClient client = WebClient.create("http://chat.inumio.com:4000");
+    private final WebClient client;
+    private final String adminUsername;
+    private final String adminPassword;
+    private ConcurrentHashMap<String, String> adminCredential;
+
+    private final String X_AUTH_TOKEN = "X-Auth-Token";
+    private final String X_USER_ID = "X-User-Id";
+
+    public UserService(@Value("${rocket.server.url}") String rocketUrl,
+                       @Value("${rocket.admin.username}") String username,
+                       @Value("${rocket.admin.password}") String password) {
+        client = WebClient.create(rocketUrl);
+        adminUsername = username;
+        adminPassword = password;
+        adminCredential = new ConcurrentHashMap<>();
+    }
+
+    @PostConstruct
+    public void init() {
+        LoginVM admin = LoginVM.builder().user(adminUsername).password(adminPassword).build();
+        client.post()
+                .uri("/api/v1/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept( MediaType.APPLICATION_JSON )
+                .body(BodyInserters.fromObject(admin))
+                .retrieve()
+                .bodyToMono(RocketLoginResponse.class)
+                .doOnSuccess(r -> {
+                    adminCredential.putIfAbsent(X_AUTH_TOKEN, r.getData().getAuthToken());
+                    adminCredential.putIfAbsent(X_USER_ID, r.getData().getUserId());
+                })
+                .doOnError(ex -> {
+                    log.error("Failed to login admin user.", ex);
+                });
+    }
 
     public Mono<UserDetailsVM> login(LoginVM user, String token) {
         return client.post()
@@ -47,8 +87,8 @@ public class UserService {
 
         return client.post()
                       .uri("/api/v1/users.create")
-                      .header("X-Auth-Token", "UQJKSjRGqw2KSRQkLO-Fsn3oNYoL6YtYSNV45RAVrKD")
-                      .header("X-User-Id", "egrWRCWhwERuNNDB3")
+                      .header(X_AUTH_TOKEN, adminCredential.get(X_AUTH_TOKEN))
+                      .header(X_USER_ID, adminCredential.get(X_USER_ID))
                       .contentType(MediaType.APPLICATION_JSON)
                       .accept( MediaType.APPLICATION_JSON )
                       .body(BodyInserters.fromObject(model))

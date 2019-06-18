@@ -1,6 +1,7 @@
 package com.mangoim.chat.service.security.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import javax.validation.constraints.Size;
  * View Model object for storing a user's credentials.
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginVM {

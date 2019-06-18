@@ -73,8 +73,10 @@ public class AuthService {
     public Mono<UserModel> signup(@Valid @RequestBody CreateUserVM createUserVM) {
         return  authorityRepository
                    .findByName(AuthoritiesConstants.USER)
-                   .doOnError(throwable -> {
-                       throw new UnsupportedOperationException("Role is not found");
+                   .doOnSuccessOrError((r, ex) -> {
+                       if(r == null || ex instanceof Exception) {
+                           throw new UnsupportedOperationException("Role is not found");
+                       }
                    })
                    .flatMap(role -> userRepository
                                 .save(User.builder()
