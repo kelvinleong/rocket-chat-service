@@ -3,6 +3,7 @@ package com.mangoim.chat.service.user;
 import com.mangoim.chat.service.security.dto.CreateUserVM;
 import com.mangoim.chat.service.security.dto.LoginVM;
 import com.mangoim.chat.service.security.dto.UserDetailsVM;
+import com.mangoim.chat.service.security.exception.InternalException;
 import com.mangoim.chat.service.user.domain.User;
 import com.mangoim.chat.service.user.model.CreateRocketUserModel;
 import com.mangoim.chat.service.user.model.RocketLoginResponse;
@@ -17,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -25,7 +27,7 @@ public class UserService {
     private final WebClient client;
     private final String adminUsername;
     private final String adminPassword;
-    private ConcurrentHashMap<String, String> adminCredential;
+    private static Map<String, String> adminCredential;
 
     private final String X_AUTH_TOKEN = "X-Auth-Token";
     private final String X_USER_ID = "X-User-Id";
@@ -42,20 +44,20 @@ public class UserService {
     @PostConstruct
     public void init() {
         LoginVM admin = LoginVM.builder().user(adminUsername).password(adminPassword).build();
-        client.post()
-                .uri("/api/v1/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept( MediaType.APPLICATION_JSON )
-                .body(BodyInserters.fromObject(admin))
-                .retrieve()
-                .bodyToMono(RocketLoginResponse.class)
-                .doOnSuccess(r -> {
-                    adminCredential.putIfAbsent(X_AUTH_TOKEN, r.getData().getAuthToken());
-                    adminCredential.putIfAbsent(X_USER_ID, r.getData().getUserId());
-                })
-                .doOnError(ex -> {
-                    log.error("Failed to login admin user.", ex);
-                });
+        login(admin, "")
+            .subscribe(
+                    this::updateAdminCredential,
+                    error -> {
+                        log.error("Failed to login via admin", error);
+                        throw new InternalException("Something went wrong in rocket db");
+                    }
+            );
+    }
+
+    private void updateAdminCredential(UserDetailsVM admin) {
+        log.info("update admin credential");
+        adminCredential.putIfAbsent(X_USER_ID, admin.getRocketId());
+        adminCredential.putIfAbsent(X_AUTH_TOKEN, admin.getAuthToken());
     }
 
     public Mono<UserDetailsVM> login(LoginVM user, String token) {

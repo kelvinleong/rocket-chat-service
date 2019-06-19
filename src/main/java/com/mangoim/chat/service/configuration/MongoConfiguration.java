@@ -23,19 +23,27 @@ import java.util.List;
 @Configuration
 @Slf4j
 public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
-    @Value("${spring.data.mongodb.host}")
-    private String mongoHost;
+    private final String mongoHost;
+    private final int mongoPort;
+    private final String mongoDatabase;
 
-    @Value("${spring.data.mongodb.port}")
-    private int mongoPort;
-
-    @Value("${spring.data.mongodb.database}")
-    private String mongoDatabase;
-
+    public MongoConfiguration(@Value("${spring.data.mongodb.host}") String mongoHost,
+                              @Value("${spring.data.mongodb.port}") int mongoPort,
+                              @Value("${spring.data.mongodb.database}") String mongoDatabase) {
+        this.mongoHost = mongoHost;
+        this.mongoPort = mongoPort;
+        this.mongoDatabase = mongoDatabase;
+    }
 
     @Override
     protected String getDatabaseName() {
         return mongoDatabase;
+    }
+
+    @Override
+    public MongoClient reactiveMongoClient() {
+        String url = "mongodb://" + mongoHost + ":" + mongoPort;
+        return MongoClients.create(url);
     }
 
     /**
@@ -57,13 +65,6 @@ public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
         mongoMapping.afterPropertiesSet();
         return template;
     }
-
-    @Override
-    public MongoClient reactiveMongoClient() {
-        String url = "mongodb://" + mongoHost + ":" + mongoPort;
-        return MongoClients.create(url);
-    }
-
 
     @ReadingConverter
     static class DateToZonedDateTimeConverter implements Converter<Date, ZonedDateTime> {

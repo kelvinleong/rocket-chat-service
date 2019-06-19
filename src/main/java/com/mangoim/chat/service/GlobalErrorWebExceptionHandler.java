@@ -28,18 +28,16 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
     }
 
     @Override
-    protected RouterFunction<ServerResponse> getRoutingFunction(
-            ErrorAttributes errorAttributes) {
-
+    protected RouterFunction<ServerResponse> getRoutingFunction(ErrorAttributes errorAttributes) {
         return RouterFunctions.route(
                 RequestPredicates.all(), this::renderErrorResponse);
     }
 
     private Mono<ServerResponse> renderErrorResponse(ServerRequest request) {
-
         Map<String, Object> errorPropertiesMap = getErrorAttributes(request, false);
 
-        return ServerResponse.status(HttpStatus.BAD_REQUEST)
+        return ServerResponse
+                .status((Integer) errorPropertiesMap.get("status"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(BodyInserters.fromObject(errorPropertiesMap));
     }

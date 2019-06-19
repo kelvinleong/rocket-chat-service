@@ -21,6 +21,7 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
     @Override
     public Map<String, Object> getErrorAttributes(ServerRequest serverRequest, boolean includeStackTrace) {
         Map<String, Object> errorAttributes = super.getErrorAttributes(serverRequest, includeStackTrace);
+
         // format & update timestamp
         var timestamp = Optional.ofNullable(errorAttributes.get("timestamp"));
         errorAttributes.putIfAbsent("timestamp", dateFormat.format(timestamp.orElseGet(Date::new)));

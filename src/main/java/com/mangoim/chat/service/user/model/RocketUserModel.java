@@ -3,11 +3,11 @@ package com.mangoim.chat.service.user.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mangoim.chat.service.configuration.jackson.LocalDateDeserializer;
+import com.mangoim.chat.service.configuration.jackson.ZonedDateTimeDeserializer;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +43,8 @@ public class RocketUserModel implements Serializable {
 
     private List<String> roles;
 
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    private Date createdAt;
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
+    private ZonedDateTime createdAt;
 
     private String status;
 
@@ -53,8 +53,8 @@ public class RocketUserModel implements Serializable {
     private String avatarUrl;
 
     @JsonProperty("_updatedAt")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    private Date updatedAt;
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
+    private ZonedDateTime updatedAt;
 
     private Map<String, Object> settings;
 }

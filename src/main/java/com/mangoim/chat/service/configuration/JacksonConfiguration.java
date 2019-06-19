@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mangoim.chat.service.configuration.jackson.LocalDateDeserializer;
 import com.mangoim.chat.service.configuration.jackson.LocalDateSerializer;
-import com.mangoim.chat.service.configuration.jackson.LocalDateTimeDeserializer;
-import com.mangoim.chat.service.configuration.jackson.LocalDateTimeSerializer;
+import com.mangoim.chat.service.configuration.jackson.ZonedDateTimeDeserializer;
+import com.mangoim.chat.service.configuration.jackson.ZonedDateTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
@@ -26,10 +26,10 @@ public class JacksonConfiguration {
         return new Jackson2ObjectMapperBuilder()
                 .serializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .featuresToDisable(SerializationFeature.WRITE_NULL_MAP_VALUES)
-                .serializerByType(LocalDateTime.class, new LocalDateTimeSerializer())
+                .serializerByType(LocalDateTime.class, new ZonedDateTimeSerializer())
                 .serializerByType(LocalDate.class, new LocalDateSerializer())
                 .deserializerByType(LocalDate.class, new LocalDateDeserializer())
-                .deserializerByType(LocalDateTime.class, new LocalDateTimeDeserializer());
+                .deserializerByType(LocalDateTime.class, new ZonedDateTimeDeserializer());
 
     }
 

@@ -3,6 +3,7 @@ package com.mangoim.chat.service.security;
 import com.mangoim.chat.service.security.dto.CreateUserVM;
 import com.mangoim.chat.service.security.dto.LoginVM;
 import com.mangoim.chat.service.security.dto.UserDetailsVM;
+import com.mangoim.chat.service.security.exception.InternalException;
 import com.mangoim.chat.service.security.exception.UnauthorizedException;
 import com.mangoim.chat.service.security.jwt.JWTReactiveAuthenticationManager;
 import com.mangoim.chat.service.security.jwt.TokenProvider;
@@ -89,14 +90,14 @@ public class AuthService {
                                        .build())
                                 .doOnError(throwable -> {
                                     log.error("Failed to persist user, {}", createUserVM.getUsername(), throwable);
-                                    throw new InternalError("Something went wrong on db");
+                                    throw new InternalException("Something went wrong on db");
                                 })
                    )
                    .flatMap(user -> userService
                           .createRocketChatUser(createUserVM, user)
                           .doOnError(throwable -> {
                               log.error("Failed to create rocket user, {}", createUserVM.getUsername(), throwable);
-                              throw new InternalError("Something went wrong on db");
+                              throw new InternalException("Something went wrong on rocket");
                           })
                    );
     }
