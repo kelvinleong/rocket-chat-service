@@ -17,7 +17,7 @@ public class SwaggerConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()
-                        .description("Mangoim Serer Frontent Api")
+                        .description("Mangoim Server Frontent Api")
                         .title("Mangoim Serer Frontent Api")
                         .version("1.0.0")
                         .build())

@@ -32,15 +32,19 @@ public class AuditLogUtils {
     }
 
     private static String passwordMask(byte[] bytes) {
-        JsonObject jsonObject = new JsonParser().parse(new String(bytes)).getAsJsonObject();
+        try {
+            JsonObject jsonObject = new JsonParser().parse(new String(bytes)).getAsJsonObject();
 
-        jsonObject.entrySet().forEach((obj) -> {
-            if(obj.getKey().toLowerCase().contains("password")) {
-                obj.setValue(new JsonPrimitive("**********"));
-            }
-        });
+            jsonObject.entrySet().forEach((obj) -> {
+                if (obj.getKey().toLowerCase().contains("password")) {
+                    obj.setValue(new JsonPrimitive("**********"));
+                }
+            });
 
-        return jsonObject.toString();
+            return jsonObject.toString();
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private static <T extends DataBuffer> T logging(Logger log, String inOrOut, T buffer) {
@@ -59,8 +63,8 @@ public class AuditLogUtils {
 
             DataBufferUtils.release(buffer);
             return (T) nettyDataBufferFactory.wrap(bytes);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Failed to write body. {}", e.getMessage(), e);
         }
         return null;
     }

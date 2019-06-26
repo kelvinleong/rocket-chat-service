@@ -1,6 +1,7 @@
 package com.mangoim.chat.service.configuration;
 
 import com.mangoim.chat.service.ApiVersion;
+import com.mangoim.chat.service.audit.AuditLogConfig;
 import com.mangoim.chat.service.security.AuthoritiesConstants;
 import com.mangoim.chat.service.security.ReactiveUserDetailsServiceImpl;
 import com.mangoim.chat.service.security.TokenAuthenticationConverter;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.web.server.WebFilter;
 
 @Configuration
 @EnableReactiveMethodSecurity
@@ -60,8 +62,7 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint(entryPoint)
                 .and()
                 .authorizeExchange()
-                .matchers(EndpointRequest.to("health", "info"))
-                .permitAll()
+                .pathMatchers(AUTH_WHITELIST).permitAll()
                 .and()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS)
@@ -71,12 +72,16 @@ public class SecurityConfiguration {
                 .matchers(EndpointRequest.toAnyEndpoint())
                 .hasAuthority(AuthoritiesConstants.ADMIN)
                 .and()
+                .addFilterAt(auditLogFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
                 .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
-                .authorizeExchange()
-                .pathMatchers(AUTH_WHITELIST).permitAll()
-                .anyExchange().authenticated();
+                .authorizeExchange();
 
         return http.build();
+    }
+
+    @Bean
+    public WebFilter auditLogFilter() {
+        return new AuditLogConfig();
     }
 
     @Bean
