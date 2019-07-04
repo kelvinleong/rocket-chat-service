@@ -33,22 +33,17 @@ public class UserService {
     private final WebClient client;
     private final String adminUsername;
     private final String adminPassword;
-    private static Map<String, String> adminCredential;
+    private Map<String, String> adminCredential;
 
     private final String X_AUTH_TOKEN = "X-Auth-Token";
     private final String X_USER_ID = "X-User-Id";
 
-    public UserService(@Value("${rocket.server.url}") String rocketUrl,
+    public UserService(WebClient webClient,
                        @Value("${rocket.admin.username}") String username,
-                       @Value("${rocket.admin.password}") String password) throws SSLException {
-        SslContext sslContext = SslContextBuilder
-                .forClient()
-                .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                .build();
-        ClientHttpConnector httpConnector = new ReactorClientHttpConnector(opt -> opt.sslContext(sslContext));
-        client = WebClient.builder().baseUrl(rocketUrl).clientConnector(httpConnector).build();
-        adminUsername = username;
-        adminPassword = password;
+                       @Value("${rocket.admin.password}") String password) {
+        this.client = webClient;
+        this.adminUsername = username;
+        this.adminPassword = password;
         adminCredential = new ConcurrentHashMap<>();
     }
 
@@ -60,7 +55,7 @@ public class UserService {
                     this::updateAdminCredential,
                     error -> {
                         log.error("Failed to login via admin", error);
-                        throw new InternalException("Something went wrong in rocket db");
+                        throw new InternalException(error.getMessage());
                     }
             );
     }
@@ -75,9 +70,14 @@ public class UserService {
         return client.post()
                 .uri("/api/v1/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept( MediaType.APPLICATION_JSON )
+                .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(user))
                 .retrieve()
+                .onStatus(e -> e.is4xxClientError() || e.is5xxServerError(), resp -> {
+                    log.error("Failed to login due to error: {}, msg: {}", resp.statusCode().value(),
+                                                            resp.statusCode().getReasonPhrase());
+                    return Mono.error(new InternalException(resp.statusCode().getReasonPhrase()));
+                })
                 .bodyToMono(RocketLoginResponse.class)
                 .flatMap(login ->  Mono.just(UserDetailsVM.builder()
                                     .username(user.getUser())
@@ -106,6 +106,11 @@ public class UserService {
                       .accept( MediaType.APPLICATION_JSON )
                       .body(BodyInserters.fromObject(model))
                       .retrieve()
+                      .onStatus(e -> e.is4xxClientError() || e.is5xxServerError(), resp -> {
+                          log.error("Faield to create rocket user due to error: {}, msg: {}", resp.statusCode().value(),
+                                                                    resp.statusCode().getReasonPhrase());
+                          return Mono.error(new InternalException(resp.statusCode().getReasonPhrase()));
+                      })
                       .bodyToMono(RocketUserResponse.class)
                       .flatMap(r -> Mono.just(UserModel.builder()
                                         .id(user.getId())
