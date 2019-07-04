@@ -9,21 +9,15 @@ import com.mangoim.chat.service.user.model.CreateRocketUserModel;
 import com.mangoim.chat.service.user.model.RocketLoginResponse;
 import com.mangoim.chat.service.user.model.RocketUserResponse;
 import com.mangoim.chat.service.user.model.UserModel;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.SSLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
