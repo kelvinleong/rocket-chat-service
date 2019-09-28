@@ -51,7 +51,9 @@ public class AuthService {
         this.userService = userService;
     }
 
-    @PostConstruct
+    /***
+     *  init user roles at the first deployment
+     */
     public void init() {
         Authority admin = Authority.builder().name(AuthoritiesConstants.ADMIN).build();
         authorityRepository.save(admin).subscribe(s -> log.info("{}::{}", s.getId(), s.getName()),
