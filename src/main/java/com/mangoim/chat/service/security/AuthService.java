@@ -8,6 +8,7 @@ import com.mangoim.chat.service.security.exception.UnauthorizedException;
 import com.mangoim.chat.service.security.jwt.JWTReactiveAuthenticationManager;
 import com.mangoim.chat.service.security.jwt.TokenProvider;
 import com.mangoim.chat.service.user.UserService;
+import com.mangoim.chat.service.user.domain.Authority;
 import com.mangoim.chat.service.user.domain.User;
 import com.mangoim.chat.service.user.model.UserModel;
 import com.mangoim.chat.service.user.repository.AuthorityRepository;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import javax.validation.Validator;
 import java.time.ZonedDateTime;
@@ -47,6 +49,17 @@ public class AuthService {
         this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+    }
+
+    @PostConstruct
+    public void init() {
+        Authority admin = Authority.builder().name(AuthoritiesConstants.ADMIN).build();
+        authorityRepository.save(admin).subscribe(s -> log.info("{}::{}", s.getId(), s.getName()),
+                                                err -> log.error("", err));
+
+        Authority user = Authority.builder().name(AuthoritiesConstants.USER).build();
+        authorityRepository.save(user).subscribe(s -> log.info("{}::{}", s.getId(), s.getName()),
+                                                err -> log.error("", err));
     }
 
     public Mono<UserDetailsVM> signin(@Valid @RequestBody LoginVM loginVM) {
@@ -76,12 +89,9 @@ public class AuthService {
                    .findByName(AuthoritiesConstants.USER)
                    .doOnSuccess(r -> {
                        if(r == null) {
+                           log.error("Role is not found....");
                            throw new UnsupportedOperationException("Role is not found");
                        }
-                   })
-                   .doOnError((ex) -> {
-                       log.error("Something went wrong....", ex);
-                       throw new UnsupportedOperationException(ex.getMessage());
                    })
                    .flatMap(role -> userRepository
                                 .save(User.builder()

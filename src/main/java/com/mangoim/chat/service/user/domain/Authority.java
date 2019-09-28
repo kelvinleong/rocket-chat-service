@@ -1,6 +1,11 @@
 package com.mangoim.chat.service.user.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -13,22 +18,19 @@ import java.io.Serializable;
  * An authority (a security role) used by Spring Security.
  */
 @Document(collection = "authority")
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 public class Authority implements Serializable, GrantedAuthority {
 
 	private static final long serialVersionUID = 1L;
 
-	@NotNull
-	@Size(max = 50)
 	@Id
+	private String id;
+
+	@Indexed(unique = true)
 	private String name;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	@Override
 	public boolean equals(Object o) {
