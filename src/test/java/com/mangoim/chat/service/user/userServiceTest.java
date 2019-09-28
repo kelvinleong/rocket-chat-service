@@ -12,6 +12,7 @@ import org.mockito.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.net.ssl.SSLException;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 
@@ -28,9 +29,9 @@ public class userServiceTest {
     private WebClient webclient;
 
     @Before
-    public void init() {
+    public void init() throws SSLException {
         MockitoAnnotations.initMocks(this);
-        userService = new UserService(webclient, "admin", "adminpwd");
+        userService = new UserService("url", "admin", "adminpwd");
     }
 
     private LoginVM userCredential() {

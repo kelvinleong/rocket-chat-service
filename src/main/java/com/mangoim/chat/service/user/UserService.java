@@ -9,15 +9,22 @@ import com.mangoim.chat.service.user.model.CreateRocketUserModel;
 import com.mangoim.chat.service.user.model.RocketLoginResponse;
 import com.mangoim.chat.service.user.model.RocketUserResponse;
 import com.mangoim.chat.service.user.model.UserModel;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
-import javax.annotation.PostConstruct;
+import javax.net.ssl.SSLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,16 +39,22 @@ public class UserService {
     private final String X_AUTH_TOKEN = "X-Auth-Token";
     private final String X_USER_ID = "X-User-Id";
 
-    public UserService(WebClient webClient,
+    public UserService(@Value("${rocket.server.url}") String rocketUrl,
                        @Value("${rocket.admin.username}") String username,
-                       @Value("${rocket.admin.password}") String password) {
-        this.client = webClient;
-        this.adminUsername = username;
-        this.adminPassword = password;
+                       @Value("${rocket.admin.password}") String password) throws SSLException {
+        SslContext sslContext = SslContextBuilder
+                .forClient()
+                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                .build();
+        //ClientHttpConnector httpConnector = new ReactorClientHttpConnector(opt -> opt.sslContext(sslContext));
+        var httpConnector = HttpClient.create().secure(t -> t.sslContext(sslContext));
+        client = WebClient.builder().baseUrl(rocketUrl).clientConnector(new ReactorClientHttpConnector(httpConnector)).build();
+        adminUsername = username;
+        adminPassword = password;
         adminCredential = new ConcurrentHashMap<>();
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void init() {
         LoginVM admin = LoginVM.builder().user(adminUsername).password(adminPassword).build();
         login(admin, "")

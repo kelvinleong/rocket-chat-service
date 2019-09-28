@@ -3,7 +3,6 @@ package com.mangoim.chat.service.configuration;
 import com.mangoim.chat.service.ApiVersion;
 import com.mangoim.chat.service.audit.AuditLogConfig;
 import com.mangoim.chat.service.security.AuthoritiesConstants;
-import com.mangoim.chat.service.security.ReactiveUserDetailsServiceImpl;
 import com.mangoim.chat.service.security.TokenAuthenticationConverter;
 import com.mangoim.chat.service.security.UnauthorizedAuthenticationEntryPoint;
 import com.mangoim.chat.service.security.jwt.JWTHeadersExchangeMatcher;
@@ -17,18 +16,21 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.server.WebFilter;
 
 @Configuration
 @EnableReactiveMethodSecurity
 @EnableWebFluxSecurity
+@ControllerAdvice(basePackageClasses = SecurityConfiguration.class)
 public class SecurityConfiguration {
-    private final ReactiveUserDetailsServiceImpl reactiveUserDetailsService;
+    private final ReactiveUserDetailsService reactiveUserDetailsService;
     private final TokenProvider tokenProvider;
 
     private static final String[] AUTH_WHITELIST = {
@@ -39,10 +41,11 @@ public class SecurityConfiguration {
             "/**/springfox-swagger-ui/**",
             "/favicon.ico",
             ApiVersion.V1 + "/auth/signin",
-            ApiVersion.V1 + "/auth/signup"
+            ApiVersion.V1 + "/auth/signup",
+            ApiVersion.V1 + "/price/**",
     };
 
-    public SecurityConfiguration(ReactiveUserDetailsServiceImpl reactiveUserDetailsService,
+    public SecurityConfiguration(ReactiveUserDetailsService reactiveUserDetailsService,
                                  TokenProvider tokenProvider) {
         this.reactiveUserDetailsService = reactiveUserDetailsService;
         this.tokenProvider = tokenProvider;
@@ -102,5 +105,4 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
